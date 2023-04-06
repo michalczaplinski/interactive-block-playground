@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactivity API - Interactive docs</title>
+  </head>
+  <body>
+    <iframe
+      style="display: none"
+      src="https://playground.wordpress.net/remote.html"
+    ></iframe>
+    <script>
+      (async () => {
+        const { connectPlayground, installPlugin, login } = await import(
+          "https://unpkg.com/@wp-playground/client@0.1.17/index.js"
+        );
+        const { getPHPLoaderModule, loadPHPRuntime } = await import(
+          "https://unpkg.com/@php-wasm/web@0.1.9/index.js"
+        );
+
+        const [phpLoaderModule, wordPressLoaderModule] = await Promise.all([
+          getPHPLoaderModule("7.4"),
+          import("/wp.js"),
+        ]);
+        const php = await loadPHPRuntime(phpLoaderModule, {}, [
+          wordPressLoaderModule,
+        ]);
+
+        const client = await connectPlayground(
+          document.querySelector("iframe"),
+          "https://playground.wordpress.net/remote.html"
+        );
+
+        await client.isReady();
+        await login(client, "admin", "password");
+
+        const plugins = [
+          "gutenberg.zip",
+          "block-interactivity-experiments.zip",
+          "hello.zip",
+        ];
+
+        for (const plugin of plugins) {
+          const pluginResponse = await fetch(plugin);
+          const blob = await pluginResponse.blob();
+          const pluginFile = new File([blob], plugin);
+          await installPlugin(client, pluginFile);
+        }
+
+        await client.goTo("/wp-admin/plugins.php");
+
+        document.querySelector("iframe").style.display = "block";
+      })();
+    </script>
+    <style>
+      h1,
+      h2 {
+        font-family: Lato;
+      }
+
+      iframe {
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
+  </body>
+</html>
