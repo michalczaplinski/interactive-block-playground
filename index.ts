@@ -6,12 +6,8 @@ import {
   PlaygroundClient,
 } from "./node_modules/@wp-playground/client/index.js";
 
-function asText(response: PHPResponse) {
-  return new TextDecoder().decode(response.body);
-}
-
 function asDOM(response: PHPResponse) {
-  return new DOMParser().parseFromString(asText(response), "text/html")!;
+  return new DOMParser().parseFromString(response.text, "text/html")!;
 }
 
 async function createNewPost(
@@ -28,15 +24,12 @@ async function createNewPost(
     const el = newPostPage.querySelector("#wp-api-request-js-extra");
     const nonce = el?.textContent?.match(/"nonce":"([a-z0-9]*)"/)![1];
     const url = await client.absoluteUrl;
-
-    console.log(`${url}?rest_route=/wp/v2/posts`);
-    const response = await fetch(`${url}?rest_route=/wp/v2/posts`, {
+    const response = await fetch(`${url}/index.php?rest_route=/wp/v2/posts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-WP-Nonce": nonce, // Use the nonce provided by WordPress
       },
-      mode: "no-cors",
       body: JSON.stringify({ title, content, status }),
       credentials: "include", // Include cookies for authentication
     });
