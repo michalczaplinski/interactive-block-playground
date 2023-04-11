@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@wp-playground/client": "^0.1.17",
+    "@wp-playground/client": "^0.1.19",
     "chokidar": "^3.5.3",
     "dir-archiver": "^2.1.0",
     "jszip": "^3.10.1",

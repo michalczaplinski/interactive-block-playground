@@ -22,7 +22,7 @@ async function createNewPost(
 ) {
   try {
     const newPostResponse = await client.request({
-      relativeUrl: "/wp-admin/post-new.php",
+      url: "/wp-admin/post-new.php",
     });
     const newPostPage = asDOM(newPostResponse);
     const el = newPostPage.querySelector("#wp-api-request-js-extra");
@@ -54,10 +54,9 @@ async function createNewPost(
 }
 
 (async () => {
-  const client = await connectPlayground(
-    document.querySelector("iframe")!,
-    "https://playground.wordpress.net/remote.html"
-  );
+  const client = await connectPlayground(document.querySelector("iframe")!, {
+    loadRemote: "https://playground.wordpress.net/remote.html",
+  });
 
   await client.isReady();
   await login(client, "admin", "password");
