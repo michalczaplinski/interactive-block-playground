@@ -24,22 +24,23 @@ async function createNewPost(
     const el = newPostPage.querySelector("#wp-api-request-js-extra");
     const nonce = el?.textContent?.match(/"nonce":"([a-z0-9]*)"/)![1];
     const url = await client.absoluteUrl;
-    const response = await fetch(`${url}/index.php?rest_route=/wp/v2/posts`, {
+
+    const response = await client.request({
       method: "POST",
+      url: "/index.php?rest_route=/wp/v2/posts",
       headers: {
         "Content-Type": "application/json",
         "X-WP-Nonce": nonce, // Use the nonce provided by WordPress
       },
       body: JSON.stringify({ title, content, status }),
-      credentials: "include", // Include cookies for authentication
     });
 
-    const data = await response.json();
+    const data = response.json;
 
-    if (response.ok) {
-      return data;
-    } else {
+    if (response.httpStatusCode >= 400) {
       throw new Error(data.message);
+    } else {
+      return data;
     }
   } catch (e) {
     console.error(e);
