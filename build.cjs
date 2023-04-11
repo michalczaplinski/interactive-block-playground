@@ -3,7 +3,7 @@ const archiver = require("archiver");
 const fs = require("fs");
 
 const helloFolderPath = "./hello";
-const outputZipPath = "./hello.zip";
+const outputZipPath = "./zips/hello.zip";
 
 // Function to zip the 'hello' folder and save it as 'hello.zip'
 function zipHelloFolder() {
