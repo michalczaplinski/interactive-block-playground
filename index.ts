@@ -23,7 +23,6 @@ async function createNewPost(
     const newPostPage = asDOM(newPostResponse);
     const el = newPostPage.querySelector("#wp-api-request-js-extra");
     const nonce = el?.textContent?.match(/"nonce":"([a-z0-9]*)"/)![1];
-    const url = await client.absoluteUrl;
 
     const response = await client.request({
       method: "POST",
