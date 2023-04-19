@@ -22,7 +22,7 @@ async function createNewPost(
     });
     const newPostPage = asDOM(newPostResponse);
     const el = newPostPage.querySelector("#wp-api-request-js-extra");
-    const nonce = el?.textContent?.match(/"nonce":"([a-z0-9]*)"/)![1];
+    const nonce = el?.textContent?.match(/"nonce":"([a-z0-9]*)"/)![1]!;
 
     const response = await client.request({
       method: "POST",
@@ -46,10 +46,44 @@ async function createNewPost(
   }
 }
 
+// Set the text content of the render.php element
+document.getElementById("render.php")!.textContent = `<?php
+  $wrapper_attributes = get_block_wrapper_attributes();
+?>
+
+<div <?php echo $wrapper_attributes; ?>>
+  <button
+data-wp-on.click="actions.hello.log"
+  >
+HELLO
+  </button>
+</div>
+`;
+
+// Set the text content of the view.js
+document.getElementById(
+  "view.js"
+)!.textContent = `// Disclaimer: Importing the "store" using a global is just a temporary solution.
+const { store } = window.__experimentalInteractivity;
+
+store({
+  actions: {
+    hello: {
+      log: () => {
+        console.log("hello!");
+      },
+    },
+  },
+});
+`;
+
 (async () => {
-  const client = await connectPlayground(document.querySelector("iframe")!, {
-    loadRemote: "https://playground.wordpress.net/remote.html",
-  });
+  const client = await connectPlayground(
+    document.querySelector("#playground")!,
+    {
+      loadRemote: "https://playground.wordpress.net/remote.html",
+    }
+  );
 
   await client.isReady();
   await login(client, "admin", "password");
@@ -67,11 +101,37 @@ async function createNewPost(
     await installPlugin(client, pluginFile);
   }
 
-  const data = await createNewPost(client, "Test post", "hello");
+  const data = await createNewPost(
+    client,
+    "Test post",
+    "<!-- wp:hello/log-block /-->"
+  );
 
-  console.log(data);
+  await client.goTo(`/?p=${data.id}`);
 
-  await client.goTo("/wp-admin/edit.php");
+  // sleep for 500ms to make sure the new post is loaded
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
-  console.log("done");
+  document.querySelector(".iframe-spinner")!.remove();
+  document.querySelector("iframe")!.classList.remove("hidden");
+
+  document
+    .getElementById("render.php")!
+    .addEventListener("keyup", async (e) => {
+      client.writeFile(
+        "/wordpress/wp-content/plugins/hello/blocks/hello/render.php",
+        e.target.value
+      );
+
+      await client.goTo(`/?p=${data.id}`);
+    });
+
+  document.getElementById("view.js")!.addEventListener("keyup", async (e) => {
+    client.writeFile(
+      "/wordpress/wp-content/plugins/hello/blocks/hello/view.js",
+      e.target.value
+    );
+
+    await client.goTo(`/?p=${data.id}`);
+  });
 })();

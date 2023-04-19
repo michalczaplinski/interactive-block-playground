@@ -7,7 +7,21 @@
     <title>Interactivity API - Interactive docs</title>
   </head>
   <body>
-    <iframe src="https://playground.wordpress.net/remote.html"></iframe>
+    <div class="iframe-container">
+      <iframe
+        class="hidden"
+        id="playground"
+        src="https://playground.wordpress.net/remote.html"
+        style="width: 800px; height: 500px"
+      ></iframe>
+      <div class="iframe-spinner"></div>
+    </div>
+    <div class="editors">
+      <h4>render.php</h4>
+      <textarea id="render.php"></textarea>
+      <h4>view.js</h4>
+      <textarea id="view.js"></textarea>
+    </div>
     <script src="./index.js" type="module"></script>
     <style>
       h1,
@@ -15,9 +29,51 @@
         font-family: Lato;
       }
 
-      iframe {
-        height: 100vh;
-        width: 100vw;
+      .editors {
+        display: grid;
+        grid-template-rows: 35px 2fr;
+        grid-auto-flow: column;
+        grid-gap: 20px;
+        justify-content: start;
+      }
+
+      textarea {
+        width: 387px;
+        height: 250px;
+        font-family: monospace;
+      }
+
+      .iframe-container {
+        position: relative;
+      }
+
+      /* Create the spinner animation */
+      @keyframes spinner {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .hidden {
+        visibility: hidden;
+      }
+
+      /* Style the spinner */
+      .iframe-spinner {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 40px;
+        height: 40px;
+        margin: -20px 0 0 -20px;
+        border: 3px solid rgba(0, 0, 0, 0.2);
+        border-top-color: #333;
+        border-radius: 50%;
+        animation: spinner 0.6s linear infinite;
       }
     </style>
   </body>

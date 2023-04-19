@@ -31,15 +31,41 @@ async function createNewPost(client, title, content, status = "publish") {
         console.error(e);
     }
 }
+// Set the text content of the render.php element
+document.getElementById("render.php").textContent = `<?php
+  $wrapper_attributes = get_block_wrapper_attributes();
+?>
+
+<div <?php echo $wrapper_attributes; ?>>
+  <button
+data-wp-on.click="actions.hello.log"
+  >
+HELLO
+  </button>
+</div>
+`;
+// Set the text content of the view.js
+document.getElementById("view.js").textContent = `// Disclaimer: Importing the "store" using a global is just a temporary solution.
+const { store } = window.__experimentalInteractivity;
+
+store({
+  actions: {
+    hello: {
+      log: () => {
+        console.log("hello!");
+      },
+    },
+  },
+});
+`;
 (async () => {
-    const client = await connectPlayground(document.querySelector("iframe"), {
+    const client = await connectPlayground(document.querySelector("#playground"), {
         loadRemote: "https://playground.wordpress.net/remote.html",
     });
     await client.isReady();
     await login(client, "admin", "password");
     const plugins = [
         "gutenberg.zip",
-        "cors-enabler.zip",
         "block-interactivity-experiments.zip",
         "hello.zip",
     ];
@@ -49,8 +75,20 @@ async function createNewPost(client, title, content, status = "publish") {
         const pluginFile = new File([blob], plugin);
         await installPlugin(client, pluginFile);
     }
-    const data = await createNewPost(client, "Test post", "hello");
-    console.log(data);
-    await client.goTo("/wp-admin/edit.php");
-    console.log("done");
+    const data = await createNewPost(client, "Test post", "<!-- wp:hello/log-block /-->");
+    await client.goTo(`/?p=${data.id}`);
+    // sleep for 500ms to make sure the new post is loaded
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    document.querySelector(".iframe-spinner").remove();
+    document.querySelector("iframe").classList.remove("hidden");
+    document
+        .getElementById("render.php")
+        .addEventListener("keyup", async (e) => {
+        client.writeFile("/wordpress/wp-content/plugins/hello/blocks/hello/render.php", e.target.value);
+        await client.goTo(`/?p=${data.id}`);
+    });
+    document.getElementById("view.js").addEventListener("keyup", async (e) => {
+        client.writeFile("/wordpress/wp-content/plugins/hello/blocks/hello/view.js", e.target.value);
+        await client.goTo(`/?p=${data.id}`);
+    });
 })();
