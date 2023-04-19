@@ -56,7 +56,6 @@ async function createNewPost(
 
   const plugins = [
     "gutenberg.zip",
-    "cors-enabler.zip",
     "block-interactivity-experiments.zip",
     "hello.zip",
   ];
