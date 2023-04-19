@@ -4,15 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node build.cjs & tsc -w -p tsconfig.json"
+    "start": "tsc -w -p tsconfig.json"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@wp-playground/client": "^0.1.19",
-    "chokidar": "^3.5.3",
-    "dir-archiver": "^2.1.0",
-    "jszip": "^3.10.1",
     "typescript": "^5.0.3"
   },
   "type": "module"
