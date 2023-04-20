@@ -56,10 +56,10 @@ store({
       },
     },
   },
-});
-`;
+});`;
 (async () => {
-    const client = await connectPlayground(document.querySelector("#playground"), {
+    const playground = document.querySelector("#playground");
+    const client = await connectPlayground(playground, {
         loadRemote: "https://playground.wordpress.net/remote.html",
     });
     await client.isReady();
@@ -77,8 +77,8 @@ store({
     }
     const data = await createNewPost(client, "Test post", "<!-- wp:hello/log-block /-->");
     await client.goTo(`/?p=${data.id}`);
-    // sleep for 500ms to make sure the new post is loaded
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // sleep for 400ms to make sure the new post is loaded
+    await new Promise((resolve) => setTimeout(resolve, 400));
     document.querySelector(".iframe-spinner").remove();
     document.querySelector("iframe").classList.remove("hidden");
     document
