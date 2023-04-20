@@ -23,3 +23,12 @@ npm start
 ```
 
 to run the `tsc` compiler.
+
+If you want to make any changes to the `hello` plugin, you should run:
+
+```sh
+node build-zips.cjs
+```
+
+This will watch the `hello` folder for chagnes and build and compress the plugin
+to `zips/hello`.
